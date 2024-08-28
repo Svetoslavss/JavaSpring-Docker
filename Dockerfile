@@ -5,7 +5,11 @@ COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
 COPY src ./src
+<<<<<<< HEAD
 RUN mvn clean package -DskipTests
+=======
+RUN mvn clean package -DskipTests  
+>>>>>>> 11a7131 (Dockerfile)
 
 FROM eclipse-temurin:22-jdk-alpine
 WORKDIR /app
