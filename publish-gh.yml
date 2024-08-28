@@ -1,0 +1,15 @@
+name: Docker image CI for GH
+
+on:
+  push:
+
+    jobs:
+      build_and_publish:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+          - name: Build and push the Image
+            run: |
+              docker login --username svetoslavss --password ${{ secrets.GH_PAT }} ghrc.io
+              docker build . --tag ghrc.io/svetoslavss/demo-app
+              docker push ghrc.io/svetoslavss/demo-app:latest
