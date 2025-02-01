@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  docker_build:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,4 +24,29 @@ jobs:
           ${{ runner.os }}-docker-
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+
+  security_test:
+    runs-on: ubuntu-latest
+    needs: docker_build
+    steps:
+    - name: Check code
+      uses: actions/checkout@v4
+
+    - name: Install Trivy
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apt-transport-https
+        curl -fsSL https://github.com/aquasecurity/trivy/releases/download/v0.35.0/trivy_0.35.0_Linux-64bit.deb -o trivy.deb
+        sudo dpkg -i trivy.deb
+        sudo apt-get update
+        sudo apt-get install -f
+
+    - name: Scan Docker image for vulnerabilities using Trivy
+      run: |
+        # Trivy scan for vulnerabilities
+        trivy image --no-progress my-image-name:$(date +%s)
+    
+    - name: Fail the build on critical vulnerabilities (optional)
+      run: |
+        trivy image --exit-code 1 --no-progress my-image-name:$(date +%s)
 
