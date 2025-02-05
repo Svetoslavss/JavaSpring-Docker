@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check code
+    - name: Checkout the code
       uses: actions/checkout@v4
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -22,10 +22,19 @@ jobs:
         key: ${{ runner.os }}-docker-${{ hashFiles('**/Dockerfile') }}
         restore-keys: |
           ${{ runner.os }}-docker-
-    - name: Build demo-app Docker image
+    - name: Build demo-app docker image
       run: docker build . --file Dockerfile --tag demo-app:latest
-    - name: Pull postgres:15-alpine Docker image
+    - name: Pull postgres:15-alpine docker image
       run: docker pull postgres:15-alpine
+      
+    - name: Install Trivy
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget
+        wget https://github.com/aquasecurity/trivy/releases/download/v0.25.0/trivy_0.25.0_Linux-x86_64.deb
+        sudo dpkg -i trivy_0.25.0_Linux-x86_64.deb
 
-
+    - name: Run security scan on demo-app image
+      run: trivy image --exit-code 1 --severity HIGH,CRITICAL demo-app:latest
+      continue-on-error: false
 
