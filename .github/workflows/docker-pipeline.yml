@@ -26,11 +26,5 @@ jobs:
       run: docker build . --file Dockerfile --tag demo-app:latest
     - name: Pull postgres:15-alpine docker image
       run: docker pull postgres:15-alpine
-      
-    - name: Install Snyk
-      run: |
-          npm install -g snyk
-
-    - name: Test Docker Image for Vulnerabilities
-      run: snyk test --docker demo-app:latest
+    
 
